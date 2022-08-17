@@ -1,0 +1,30 @@
+{% extends 'back/base_back.html.twig' %}
+
+{% block title %}Actor{% endblock %}
+
+{% block body %}
+    <h1>Actor</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ actor.id }}</td>
+            </tr>
+            <tr>
+                <th>FirstName</th>
+                <td>{{ actor.firstName }}</td>
+            </tr>
+            <tr>
+                <th>LastName</th>
+                <td>{{ actor.lastName }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_back_actor_index') }}">back to list</a>
+
+    <a href="{{ path('app_back_actor_edit', {'id': actor.id}) }}">edit</a>
+
+    {{ include('back/actor/_delete_form.html.twig') }}
+{% endblock %}

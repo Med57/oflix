@@ -1,0 +1,61 @@
+{% extends 'back/base_back.html.twig' %}
+
+{% block title %}Movie{% endblock %}
+
+{% block body %}
+    <h1>Movie</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ movie.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ movie.title }}</td>
+            </tr>
+            <tr>
+                <th>Summary</th>
+                <td>{{ movie.summary }}</td>
+            </tr>
+            <tr>
+                <th>Synopsis</th>
+                <td>{{ movie.synopsis }}</td>
+            </tr>
+            <tr>
+                <th>ReleasedAt</th>
+                <td>{{ movie.releasedAt ? movie.releasedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Duration</th>
+                <td>{{ movie.duration }}</td>
+            </tr>
+            <tr>
+                <th>Poster</th>
+                <td>{{ movie.poster }}</td>
+            </tr>
+            <tr>
+                <th>Country</th>
+                <td>{{ movie.country }}</td>
+            </tr>
+            <tr>
+                <th>Rating</th>
+                <td>{{ movie.rating }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ movie.type }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_back_movie_index') }}">back to list</a>
+    {% if is_granted('ROLE_MANAGER') %}
+        <a href="{{ path('app_back_movie_edit', {'id': movie.id}) }}">edit</a>
+    {% endif %}
+    {# On affiche le formulaire/bouton de supression que au ROLE_ADMIN #}
+    {% if is_granted('ROLE_ADMIN') %}
+        {{ include('back/movie/_delete_form.html.twig') }}
+    {% endif %}
+{% endblock %}

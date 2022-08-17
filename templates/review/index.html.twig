@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{movie.title}} - Ajout critique{% endblock %}
+
+{% block body %}
+    <div class="container bg-lighttt pt-5">
+
+        <div class="row mb-2">
+
+            <div class="col">
+                {{ form(reviewForm, {attr: {novalidate: 'novalidate'}}) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

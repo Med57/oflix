@@ -1,0 +1,111 @@
+{#
+^ array:8 [▼
+    "type" => "Série"
+    "title" => "Game of Thrones"
+    "release_date" => 2011
+    "duration" => 52
+    "summary" => "Neuf familles nobles se battent pour le contrôle des terres de Westeros, tandis qu'un ancien ennemi revient..."
+    "synopsis" => "Il y a très longtemps, à une époque oubliée, une force a détruit l'équilibre des saisons. Dans un pays où l'été peut durer plusieurs années et l'hiver toute une ▶"
+    "poster" => "https://m.media-amazon.com/images/M/MV5BYTRiNDQwYzAtMzVlZS00NTI5LWJjYjUtMzkwNTUzMWMxZTllXkEyXkFqcGdeQXVyNDIzMzcwNjc@._V1_SX300.jpg"
+    "rating" => 4.7
+    ]
+#}
+{% extends "base.html.twig" %}
+
+{% block title %}
+    {{ movie.title }}
+{% endblock %}
+
+{% dump movie %}
+
+{% block body %}
+    <!-- main -->
+    {# read and display just one flash message type #}
+    {% for message in app.flashes('notice') %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    <div class="container bg-lighttt pt-5">
+
+        <div class="row mb-2">
+
+            <div class="col">
+
+                <div
+                    class="row g-0 borderrr rrrounded overflow-hidden flex-md-row align-items-start mb-4 shadow-smmm position-relative">
+                    <div class="col-4 movie__poster img-thumbnail"
+                        style="background-image: url({{ movie.poster }});">
+                        <img src="{{asset('assets/images/poster-placeholder.png')}}" class="img-fluid">
+                        <!-- img src="https://m.media-amazon.com/images/M/MV5BNThmZGY4NzgtMTM4OC00NzNkLWEwNmEtMjdhMGY5YTc1NDE4XkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg" class="img-fluid" -->
+                    </div>
+
+                    <div class="col-8 p-4 d-flex flex-column position-static bg-light">
+                        <a href="" class="movie__favorite fs-1 my-2 mx-3 link-danger"><i class="bi bi-bookmark-plus"></i></a>
+                        <strong class="d-inline-block mb-2 text-primary">{{ movie.type }}</strong>
+                        <h3 class="mb-1">{{ movie.title }}</h3>
+                        <div class="mb-1 text-muted">{{ movie.duration }} min</div>
+                        <p>
+                            {% for genre in movie.genres %}
+                                <a class="badge bg-warning text-dark" href="{{ path('app_genre', {"id" : genre.id})}}"><span >{{genre.name}}</span></a>
+                            {% endfor %}
+                        </p>
+                        <p>{{ movie.synopsis }}
+                        </p>
+                        <div class="d-flex mb-4" style="color: orange;">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                            <span class="ps-1">{{ movie.rating }}</span>
+                        </div>
+                        
+                        {% if movie.type == "Série" %}
+                            <h2>{{ movie.seasons|length }} Saisons</h2>
+                            <ul class="list-unstyled">
+                                {% for season in movie.seasons %}
+                                <li><span class="badge bg-danger fs-6 mb-2">{{season.title}}</span><small class="ms-1">({{season.nbEpisode}} épisodes)</small></li>    
+                                {% endfor %}                     
+                            </ul>
+                        {% endif %}
+                        
+
+                        <dl class="row">
+                            <dt class="col-sm-12">Avec</dt>
+                            <dd class="col-sm-12">
+                            {% for casting in movie.castings %}
+                                #{{casting.creditOrder}} {{casting.actor.fullname}} {{casting.actor.lastName}} ({{casting.role}})<br>
+                            {% endfor %}
+                            </dd>
+                            <dt class="col-sm-12">Pays</dt>
+                            <dd class="col-sm-12">{{movie.country}}</dd>
+                            <dt class="col-sm-12">Année</dt>
+                            <dd class="col-sm-12">{{ movie.releasedAt|date("d/m/Y") }}</dd>
+                        </dl>
+                        <div class="d-flex mb-4">
+                            <a class="btn btn-primary" href="{{ path("app_review_movie", {"id": movie.id})}}">Ajouter une critique</a>
+                        </div>
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for review in movie.reviews|sort((a, b) => a.watchedAt <=> b.watchedAt) %}
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Critique de {{review.username}}</h5>
+                                            <em>film vu le {{review.watchedAt|date("d/m/Y")}}</em>
+                                            <p class="card-text">{{review.content}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

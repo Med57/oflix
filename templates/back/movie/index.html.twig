@@ -1,0 +1,61 @@
+{% extends 'back/base_back.html.twig' %}
+
+{% block title %}Backoffice : Movie index{% endblock %}
+
+{% block body %}
+    {# 
+    pour acceder a des infos venant de l'application
+    on a à notre dsposition la variable 'app'
+    et pour les flashMessage a une méthode flashes('type')
+    on a dit que c'était un tableau, on peut donc boucler dessus
+    #}
+    {% for message in app.flashes('notice') %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    <h1>Movie index</h1>
+<a class="btn btn-success" href="{{ path('app_back_movie_new') }}">Create new</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Summary</th>
+                
+                <th>ReleasedAt</th>
+                <th>Duration</th>
+                
+                <th>Country</th>
+                <th>Rating</th>
+                <th>Type</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for movie in movies %}
+            <tr>
+                
+                <td>{{ movie.title }}</td>
+                <td>{{ movie.summary }}</td>
+                
+                <td>{{ movie.releasedAt ? movie.releasedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ movie.duration }}</td>
+                
+                <td>{{ movie.country }}</td>
+                <td>{{ movie.rating }}</td>
+                <td>{{ movie.type }}</td>
+                <td>
+                    <a class="btn btn-info" href="{{ path('app_back_movie_show', {'id': movie.id}) }}">show</a>
+                    <a class="btn btn-warning" href="{{ path('app_back_movie_edit', {'id': movie.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    
+{% endblock %}

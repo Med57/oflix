@@ -1,0 +1,106 @@
+security:
+    enable_authenticator_manager: true
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User:
+            algorithm: auto
+
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+    firewalls:
+        # A METTRE ABSOLUMENT AVANT MAIN, sinon ça marche pas
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # bundle openAPI
+        nelmio_api_doc:
+            pattern: ^/api/doc
+            stateless: true
+        api:
+            pattern:   ^/api
+            stateless: true
+            jwt: ~
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\OflixAuthentificatorAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                # target: app_any_route
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # ici je veux interdire l'accès à toutes les URL qui commencent par '/back'
+        # pour accèder aux URLS qui commencent par '/back' il faut le role ROLE_ADMIN
+        # dès qu'un path correspond on applique, et on s'arrête = l'ordre est important
+        # roles est un tableau, on peut donc mettre plusieurs roles : [ROLE_1, ROLE_2, ...]
+        
+        # Penser à utiliser bin/console debug:router pour avoir tous les motifs d'URL sous les yeux
+        # BACK
+        # page édition création (les castings seront pris en compte aussi)
+        - { path: ^/back/.+/(new|edit), roles: ROLE_MANAGER}
+        # Autre option possible
+        # - { path: ^/back/(movie|user)/new, roles: ROLE_ADMIN}
+        # - { path: ^/back/(movie|user)/\d+\edit, roles: ROLE_ADMIN}
+        # suppression que pour les admins (méthode HTTP POST)
+        - { path: ^/back/.+/\d+$, roles: ROLE_ADMIN, methods: [POST]} 
+        # back office pour les managers, uniquement en consultation
+        - { path: ^/back/, roles: ROLE_MANAGER }
+        # FRONT
+        # les utilisateurs doivent avoir accès aux avis
+        - { path: ^/movie/\d+/review/add, roles: ROLE_USER }
+        # les utilisateurs doivent avoir accès à leur liste
+        - { path: ^/favorites, roles: ROLE_USER }
+        
+        # la partie API
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        # je restrein l'acces à la création (POST) de genre
+        - { path: ^/api/genres, roles: [ROLE_ADMIN], methods: [POST]}
+
+        # c'est le fonctionnement par defaut, mais des fois être explicite nous aide
+        - { path: ^/, roles: PUBLIC_ACCESS}
+
+
+    role_hierarchy:
+        ROLE_DEV : ROLE_ADMIN
+        # si j'ai le role ADMIN : j'ai aussi le role MANAGER
+        ROLE_ADMIN: ROLE_MANAGER
+        # si j'ai le role MANAGER : j'ai aussi le role USER
+        # si j'ai le role ADMIN: j'ai MANAGER ET USER
+        ROLE_MANAGER: ROLE_USER
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon
